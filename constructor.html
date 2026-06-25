@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Конструктор ванной</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #fff; overflow: hidden; height: 100vh; }
+#canvas-container { width: 100vw; height: 100vh; display: block; }
+
+#ui-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 340px;
+  height: 100vh;
+  background: rgba(15,15,25,.95);
+  border-left: 1px solid rgba(255,255,255,.06);
+  padding: 1.5rem;
+  overflow-y: auto;
+  z-index: 10;
+  backdrop-filter: blur(20px);
+  transform: translateX(0);
+  transition: transform .4s ease;
+}
+
+#ui-panel.collapsed {
+  transform: translateX(calc(100% - 48px));
+}
+
+#toggle-panel {
+  position: fixed;
+  top: 50%;
+  right: 340px;
+  transform: translateY(-50%);
+  z-index: 11;
+  background: rgba(15,15,25,.9);
+  border: 1px solid rgba(255,255,255,.06);
+  border-right: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px 0 0 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,.5);
+  font-size: 1.4rem;
+  transition: right .4s ease, color .3s;
+}
+
+#ui-panel.collapsed + #toggle-panel {
+  right: 0;
+}
+
+#toggle-panel:hover {
+  color: #4facfe;
+}
+
+#ui-panel::-webkit-scrollbar { width: 4px; }
+#ui-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 2px; }
+
+.section { margin-bottom: 1.5rem; }
+.section-title {
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: rgba(255,255,255,.3);
+  margin-bottom: .75rem;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .6rem;
+}
+
+.control-row label {
+  font-size: .85rem;
+  color: rgba(255,255,255,.7);
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.control-row .value {
+  font-size: .8rem;
+  color: rgba(255,255,255,.4);
+  min-width: 32px;
+  text-align: right;
+}
+
+input[type="color"] {
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  cursor: pointer;
+  background: none;
+  padding: 2px;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+input[type="color"]::-webkit-color-swatch { border: none; border-radius: 5px; }
+
+input[type="range"] {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  background: rgba(255,255,255,.1);
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4facfe;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,.2);
+}
+
+.toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.toggle-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .4rem .6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .3s;
+}
+
+.toggle-item:hover { background: rgba(255,255,255,.04); }
+
+.toggle-item label {
+  font-size: .85rem;
+  color: rgba(255,255,255,.7);
+  cursor: pointer;
+  flex: 1;
+}
+
+.toggle-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #4facfe;
+  cursor: pointer;
+}
+
+.tile-patterns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .4rem;
+  margin-top: .4rem;
+}
+
+.tile-pattern {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 2px solid rgba(255,255,255,.08);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: border-color .3s, transform .3s;
+}
+
+.tile-pattern:hover {
+  border-color: rgba(79,172,254,.3);
+  transform: scale(1.05);
+}
+
+.tile-pattern.active {
+  border-color: #4facfe;
+}
+
+.preset-btn {
+  padding: .5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.7);
+  cursor: pointer;
+  font-size: .8rem;
+  font-family: 'Inter', sans-serif;
+  transition: border-color .3s, background .3s;
+  margin-right: .4rem;
+  margin-bottom: .4rem;
+}
+
+.preset-btn:hover {
+  border-color: #4facfe;
+  background: rgba(79,172,254,.1);
+  color: #fff;
+}
+
+.preset-btn.active {
+  border-color: #4facfe;
+  background: rgba(79,172,254,.15);
+  color: #fff;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.header h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.header .logo {
+  font-size: 1.4rem;
+}
+
+#save-btn {
+  margin-top: 1rem;
+  width: 100%;
+  padding: .8rem;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: #fff;
+  font-weight: 600;
+  font-size: .9rem;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: transform .3s, box-shadow .3s;
+}
+
+#save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(79,172,254,.3);
+}
+
+.hint {
+  font-size: .75rem;
+  color: rgba(255,255,255,.25);
+  text-align: center;
+  margin-top: 1rem;
+}
+</style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+
+<div id="ui-panel">
+  <div class="header">
+    <span class="logo">🛁</span>
+    <h2>Конструктор ванной</h2>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Быстрые пресеты</div>
+    <button class="preset-btn active" data-preset="light">Светлый</button>
+    <button class="preset-btn" data-preset="dark">Тёмный</button>
+    <button class="preset-btn" data-preset="warm">Тёплый</button>
+    <button class="preset-btn" data-preset="luxury">Люкс</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Стены (плитка)</div>
+    <div class="control-row">
+      <label>Цвет</label>
+      <input type="color" id="wall-color" value="#d4e4f7">
+    </div>
+    <div class="control-row">
+      <label>Размер</label>
+      <input type="range" id="tile-size" min="0.2" max="1" step="0.05" value="0.6">
+      <span class="value" id="tile-size-val">60</span>
+    </div>
+    <div class="tile-patterns">
+      <div class="tile-pattern active" data-pattern="grid" title="Сетка">⊞</div>
+      <div class="tile-pattern" data-pattern="brick" title="Кирпич">⊟</div>
+      <div class="tile-pattern" data-pattern="hex" title="Гексагон">⬡</div>
+      <div class="tile-pattern" data-pattern="diagonal" title="Диагональ">◇</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Пол</div>
+    <div class="control-row">
+      <label>Цвет</label>
+      <input type="color" id="floor-color" value="#8B7355">
+    </div>
+    <div class="control-row">
+      <label>Материал</label>
+      <select id="floor-material" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:.4rem .6rem;color:#fff;font-family:'Inter',sans-serif;font-size:.85rem;outline:none">
+        <option value="tile">Плитка</option>
+        <option value="wood">Дерево</option>
+        <option value="stone">Камень</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Потолок</div>
+    <div class="control-row">
+      <label>Цвет</label>
+      <input type="color" id="ceiling-color" value="#f0f0f0">
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Мебель</div>
+    <div class="toggle-group">
+      <div class="toggle-item">
+        <input type="checkbox" id="furn-bath" checked>
+        <label for="furn-bath">Ванна</label>
+      </div>
+      <div class="toggle-item">
+        <input type="checkbox" id="furn-toilet" checked>
+        <label for="furn-toilet">Унитаз</label>
+      </div>
+      <div class="toggle-item">
+        <input type="checkbox" id="furn-sink" checked>
+        <label for="furn-sink">Раковина</label>
+      </div>
+      <div class="toggle-item">
+        <input type="checkbox" id="furn-cabinet" checked>
+        <label for="furn-cabinet">Шкаф</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Освещение</div>
+    <div class="control-row">
+      <label>Яркость</label>
+      <input type="range" id="light-intensity" min="0" max="2" step="0.05" value="1">
+      <span class="value" id="light-intensity-val">1.0</span>
+    </div>
+    <div class="control-row">
+      <label>Тёплый</label>
+      <input type="range" id="light-warmth" min="0" max="1" step="0.05" value="0.3">
+      <span class="value" id="light-warmth-val">0.3</span>
+    </div>
+  </div>
+
+  <button id="save-btn">💾 Сохранить скриншот</button>
+  <div class="hint">🖱 Вращайте сцену — зажмите левую кнопку мыши</div>
+</div>
+
+<div id="toggle-panel">⚙</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const container = document.getElementById('canvas-container');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1a2e);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 50);
+camera.position.set(6, 5, 8);
+camera.lookAt(0, 1.2, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+container.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.2, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI / 2.05;
+controls.minDistance = 2;
+controls.maxDistance = 15;
+controls.update();
+
+const roomWidth = 4;
+const roomDepth = 3;
+const roomHeight = 2.7;
+
+const furniture = {};
+const wallMeshes = {};
+let tileTexture = null;
+
+function createTileTexture(pattern, color, tileSize) {
+  const canvas = document.createElement('canvas');
+  const size = 512;
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  const c = new THREE.Color(color);
+  const r = Math.floor(c.r * 255);
+  const g = Math.floor(c.g * 255);
+  const b = Math.floor(c.b * 255);
+
+  const tilePx = size * tileSize * 0.6;
+
+  if (pattern === 'grid') {
+    const gap = 2;
+    const cols = Math.floor(size / (tilePx + gap));
+    const rows = Math.floor(size / (tilePx + gap));
+    const offset = (size - cols * tilePx - (cols - 1) * gap) / 2;
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        const x = offset + i * (tilePx + gap);
+        const y = offset + j * (tilePx + gap);
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(x, y, tilePx, tilePx);
+        ctx.strokeStyle = `rgba(255,255,255,0.08)`;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, tilePx, tilePx);
+        ctx.fillStyle = `rgba(255,255,255,0.03)`;
+        ctx.fillRect(x + tilePx * 0.1, y + tilePx * 0.1, tilePx * 0.15, tilePx * 0.15);
+      }
+    }
+  } else if (pattern === 'brick') {
+    const gap = 2;
+    const bw = tilePx * 1.2;
+    const bh = tilePx * 0.6;
+    const cols = Math.floor(size / (bw + gap)) + 1;
+    const rows = Math.floor(size / (bh + gap)) + 1;
+    for (let j = 0; j < rows; j++) {
+      const offsetX = (j % 2 === 0) ? 0 : (bw + gap) / 2;
+      for (let i = 0; i < cols; i++) {
+        const x = i * (bw + gap) - (bw - (size % (bw + gap))) / 2 + offsetX - bw / 4;
+        const y = j * (bh + gap) - (bh - (size % (bh + gap))) / 2;
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(x, y, bw, bh);
+        ctx.strokeStyle = `rgba(255,255,255,0.08)`;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, bw, bh);
+      }
+    }
+  } else if (pattern === 'diagonal') {
+    const gap = 2;
+    const ds = tilePx * 0.7;
+    const cols = Math.floor(size * 1.5 / (ds + gap)) + 2;
+    const rows = Math.floor(size * 1.5 / (ds + gap)) + 2;
+    ctx.translate(size / 2, 0);
+    ctx.rotate(Math.PI / 4);
+    ctx.translate(-size / 2, -size / 2);
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        const x = (i - j) * (ds + gap) / 2 + size / 2;
+        const y = (i + j) * (ds + gap) / 2 - size * 0.15;
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(x, y, ds, ds);
+        ctx.strokeStyle = `rgba(255,255,255,0.08)`;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, ds, ds);
+      }
+    }
+  } else {
+    const gap = 1;
+    const hexR = tilePx * 0.35;
+    const h = hexR * Math.sqrt(3);
+    const cols = Math.floor(size / (hexR * 1.5 + gap)) + 2;
+    const rows = Math.floor(size / (h + gap)) + 2;
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        const cx = i * hexR * 1.5 + (j % 2) * hexR * 0.75;
+        const cy = j * (h + gap) * 0.5 + hexR;
+        ctx.beginPath();
+        for (let k = 0; k < 6; k++) {
+          const angle = Math.PI / 3 * k - Math.PI / 6;
+          const px = cx + hexR * Math.cos(angle);
+          const py = cy + hexR * Math.sin(angle);
+          k === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(255,255,255,0.06)`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+  }
+
+  return new THREE.CanvasTexture(canvas);
+}
+
+function createFloorTexture(material, color) {
+  const canvas = document.createElement('canvas');
+  const size = 512;
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  const c = new THREE.Color(color);
+  const r = Math.floor(c.r * 255);
+  const g = Math.floor(c.g * 255);
+  const b = Math.floor(c.b * 255);
+
+  if (material === 'wood') {
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(0, 0, size, size);
+    for (let i = 0; i < 20; i++) {
+      const x = Math.random() * size;
+      const y = i * (size / 20);
+      ctx.strokeStyle = `rgba(0,0,0,${0.05 + Math.random() * 0.08})`;
+      ctx.lineWidth = 1 + Math.random();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      for (let j = 0; j < 10; j++) {
+        ctx.lineTo(x + (Math.random() - 0.5) * 20, y + j * (size / 200));
+      }
+      ctx.stroke();
+    }
+    for (let i = 0; i < 50; i++) {
+      ctx.fillStyle = `rgba(0,0,0,${0.02 + Math.random() * 0.04})`;
+      ctx.beginPath();
+      ctx.arc(Math.random() * size, Math.random() * size, 1 + Math.random() * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (material === 'stone') {
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(0, 0, size, size);
+    const tileSz = size / 4;
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        const v = 20 + Math.random() * 30;
+        ctx.fillStyle = `rgb(${Math.max(0,r-v)},${Math.max(0,g-v)},${Math.max(0,b-v)})`;
+        ctx.fillRect(i * tileSz + 1, j * tileSz + 1, tileSz - 2, tileSz - 2);
+        ctx.strokeStyle = `rgba(0,0,0,0.1)`;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(i * tileSz, j * tileSz, tileSz, tileSz);
+      }
+    }
+  } else {
+    const tilePx = size / 6;
+    for (let i = 0; i < 6; i++) {
+      for (let j = 0; j < 6; j++) {
+        const v = (i + j) % 2 === 0 ? 0 : -15;
+        ctx.fillStyle = `rgb(${r+v},${g+v},${b+v})`;
+        ctx.fillRect(i * tilePx, j * tilePx, tilePx, tilePx);
+        ctx.strokeStyle = `rgba(255,255,255,0.05)`;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(i * tilePx, j * tilePx, tilePx, tilePx);
+      }
+    }
+  }
+
+  return new THREE.CanvasTexture(canvas);
+}
+
+function buildRoom() {
+  const w = roomWidth / 2;
+  const d = roomDepth / 2;
+  const h = roomHeight;
+
+  const wallGeo = new THREE.PlaneGeometry(roomWidth, roomHeight);
+  const wallGeoW = new THREE.PlaneGeometry(roomDepth, roomHeight);
+
+  const matConfig = {
+    side: THREE.DoubleSide,
+    roughness: 0.6,
+    metalness: 0.1,
+  };
+
+  const wallMat = new THREE.MeshStandardMaterial({ ...matConfig, roughness: 0.4 });
+
+  wallMeshes.back = new THREE.Mesh(wallGeo, wallMat);
+  wallMeshes.back.position.set(0, h / 2, -d);
+  scene.add(wallMeshes.back);
+
+  wallMeshes.front = new THREE.Mesh(wallGeo.clone(), wallMat.clone());
+  wallMeshes.front.position.set(0, h / 2, d);
+  wallMeshes.front.rotation.y = Math.PI;
+  scene.add(wallMeshes.front);
+
+  wallMeshes.left = new THREE.Mesh(wallGeoW, wallMat.clone());
+  wallMeshes.left.position.set(-w, h / 2, 0);
+  wallMeshes.left.rotation.y = Math.PI / 2;
+  scene.add(wallMeshes.left);
+
+  wallMeshes.right = new THREE.Mesh(wallGeoW.clone(), wallMat.clone());
+  wallMeshes.right.position.set(w, h / 2, 0);
+  wallMeshes.right.rotation.y = -Math.PI / 2;
+  scene.add(wallMeshes.right);
+
+  const floorMat = new THREE.MeshStandardMaterial({ roughness: 0.5, metalness: 0.05 });
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(roomWidth, roomDepth), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set(0, 0.01, 0);
+  floor.receiveShadow = true;
+  scene.add(floor);
+  wallMeshes.floor = floor;
+  wallMeshes.floorMat = floorMat;
+
+  const ceilMat = new THREE.MeshStandardMaterial({ roughness: 0.8, metalness: 0, side: THREE.DoubleSide });
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(roomWidth, roomDepth), ceilMat);
+  ceiling.rotation.x = Math.PI / 2;
+  ceiling.position.set(0, h, 0);
+  scene.add(ceiling);
+  wallMeshes.ceiling = ceiling;
+  wallMeshes.ceilMat = ceilMat;
+
+  wallMeshes.wallMats = [wallMat, wallMeshes.front.material, wallMeshes.left.material, wallMeshes.right.material];
+
+  applyWallTile();
+  applyFloor();
+  applyCeiling();
+}
+
+function applyWallTile() {
+  const color = document.getElementById('wall-color').value;
+  const size = parseFloat(document.getElementById('tile-size').value);
+  const pattern = document.querySelector('.tile-pattern.active')?.dataset.pattern || 'grid';
+
+  tileTexture = createTileTexture(pattern, color, size);
+  tileTexture.wrapS = tileTexture.wrapT = THREE.RepeatWrapping;
+  tileTexture.repeat.set(2, 2);
+
+  wallMeshes.wallMats.forEach(mat => {
+    mat.map = tileTexture;
+    mat.color.set(0xffffff);
+    mat.needsUpdate = true;
+  });
+}
+
+function applyFloor() {
+  const color = document.getElementById('floor-color').value;
+  const material = document.getElementById('floor-material').value;
+  wallMeshes.floorMat.map = createFloorTexture(material, color);
+  wallMeshes.floorMat.color.set(0xffffff);
+  wallMeshes.floorMat.needsUpdate = true;
+}
+
+function applyCeiling() {
+  const color = document.getElementById('ceiling-color').value;
+  wallMeshes.ceilMat.color.set(color);
+  wallMeshes.ceilMat.needsUpdate = true;
+}
+
+function buildFurniture() {
+  const bathMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.3, metalness: 0.1 });
+  const bath = new THREE.Group();
+
+  const tub = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.55, 0.8), bathMat);
+  tub.position.y = 0.275;
+  tub.castShadow = true;
+  bath.add(tub);
+
+  const inner = new THREE.Mesh(
+    new THREE.BoxGeometry(1.35, 0.4, 0.55),
+    new THREE.MeshStandardMaterial({ color: 0xe8e8e8, roughness: 0.2, metalness: 0.05 })
+  );
+  inner.position.set(0, 0.35, 0);
+  bath.add(inner);
+
+  const rimMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
+  const rim = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.04, 0.85), rimMat);
+  rim.position.y = 0.55;
+  bath.add(rim);
+
+  const feetMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8, roughness: 0.2 });
+  for (const pos of [[-0.7, 0.04, -0.35], [0.7, 0.04, -0.35], [-0.7, 0.04, 0.35], [0.7, 0.04, 0.35]]) {
+    const foot = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), feetMat);
+    foot.position.set(pos[0], pos[1], pos[2]);
+    bath.add(foot);
+  }
+
+  bath.position.set(-0.8, 0, 0.5);
+  bath.rotation.y = 0.2;
+  scene.add(bath);
+  furniture.bath = bath;
+
+  const toiletMat = new THREE.MeshStandardMaterial({ color: 0xfafafa, roughness: 0.2, metalness: 0.05 });
+  const toilet = new THREE.Group();
+
+  const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 0.35, 16), toiletMat);
+  bowl.position.set(0, 0.175, 0.15);
+  toilet.add(bowl);
+
+  const seat = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.03, 8, 16), toiletMat);
+  seat.position.set(0, 0.35, 0.15);
+  seat.rotation.x = Math.PI / 2;
+  toilet.add(seat);
+
+  const tankMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.3 });
+  const tank = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.35, 0.2), tankMat);
+  tank.position.set(0, 0.375, -0.15);
+  tank.castShadow = true;
+  toilet.add(tank);
+
+  const lid = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.03, 0.22), tankMat);
+  lid.position.set(0, 0.55, -0.15);
+  toilet.add(lid);
+
+  toilet.position.set(1.2, 0, -0.7);
+  scene.add(toilet);
+  furniture.toilet = toilet;
+
+  const sinkMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.15, metalness: 0.1 });
+  const sink = new THREE.Group();
+
+  const basin = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.1, 0.45), sinkMat);
+  basin.position.set(0, 0.75, 0);
+  basin.castShadow = true;
+  sink.add(basin);
+
+  const bowl2 = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.2, 0.22, 0.08, 16),
+    new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.1 })
+  );
+  bowl2.position.set(0, 0.71, 0);
+  sink.add(bowl2);
+
+  const faucetMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.9, roughness: 0.1 });
+  const faucet = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.15, 8), faucetMat);
+  faucet.position.set(0, 0.85, 0.15);
+  sink.add(faucet);
+
+  const spout = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.02, 8, 8), faucetMat);
+  spout.position.set(0, 0.8, 0.22);
+  spout.rotation.x = Math.PI / 2;
+  sink.add(spout);
+
+  const legMat = new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.6, roughness: 0.3 });
+  for (const pos of [[-0.25, 0.35, -0.18], [0.25, 0.35, -0.18], [-0.25, 0.35, 0.18], [0.25, 0.35, 0.18]]) {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.35, 6), legMat);
+    leg.position.set(pos[0], pos[1], pos[2]);
+    sink.add(leg);
+  }
+
+  sink.position.set(1.3, 0, 0.7);
+  scene.add(sink);
+  furniture.sink = sink;
+
+  const cabinetMat = new THREE.MeshStandardMaterial({ color: 0x8B7355, roughness: 0.5 });
+  const cabinet = new THREE.Group();
+
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.35), cabinetMat);
+  body.position.set(0, 0.4, 0);
+  body.castShadow = true;
+  cabinet.add(body);
+
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0x9B8365, roughness: 0.4 });
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.68, 0.04), doorMat);
+  door.position.set(0, 0.4, 0.18);
+  cabinet.add(door);
+
+  const handleMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.7, roughness: 0.2 });
+  const handle = new THREE.Mesh(new THREE.SphereGeometry(0.02, 6, 6), handleMat);
+  handle.position.set(0.15, 0.4, 0.2);
+  cabinet.add(handle);
+
+  cabinet.position.set(-1.5, 0, 0.8);
+  scene.add(cabinet);
+  furniture.cabinet = cabinet;
+}
+
+function buildLights() {
+  const ambient = new THREE.AmbientLight(0x404060, 0.4);
+  scene.add(ambient);
+  wallMeshes.ambient = ambient;
+
+  const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  mainLight.position.set(0, 5, 2);
+  mainLight.castShadow = true;
+  mainLight.shadow.mapSize.width = 1024;
+  mainLight.shadow.mapSize.height = 1024;
+  const d = 6;
+  mainLight.shadow.camera.left = -d;
+  mainLight.shadow.camera.right = d;
+  mainLight.shadow.camera.top = d;
+  mainLight.shadow.camera.bottom = -d;
+  mainLight.shadow.camera.near = 1;
+  mainLight.shadow.camera.far = 10;
+  scene.add(mainLight);
+  wallMeshes.mainLight = mainLight;
+
+  const fillLight = new THREE.DirectionalLight(0x8888ff, 0.5);
+  fillLight.position.set(-3, 2, -3);
+  scene.add(fillLight);
+
+  const spotLight = new THREE.SpotLight(0xffeedd, 0.8, 8, Math.PI / 6, 0.3, 1);
+  spotLight.position.set(0, roomHeight - 0.1, 0);
+  spotLight.target.position.set(0, 0, 0);
+  spotLight.castShadow = true;
+  scene.add(spotLight);
+  scene.add(spotLight.target);
+  wallMeshes.spotLight = spotLight;
+
+  for (let i = 0; i < 4; i++) {
+    const angle = (i / 4) * Math.PI * 2;
+    const r = 1.2;
+    const pl = new THREE.PointLight(0xffeedd, 0.3, 4);
+    pl.position.set(Math.cos(angle) * r, roomHeight - 0.15, Math.sin(angle) * r);
+    scene.add(pl);
+  }
+}
+
+function updateLighting() {
+  const intensity = parseFloat(document.getElementById('light-intensity').value);
+  const warmth = parseFloat(document.getElementById('light-warmth').value);
+
+  const r = 1;
+  const g = 1 - warmth * 0.3;
+  const b = 1 - warmth * 0.5;
+  const color = new THREE.Color(r, g, b);
+
+  if (wallMeshes.mainLight) {
+    wallMeshes.mainLight.intensity = intensity * 1.5;
+    wallMeshes.mainLight.color.copy(color);
+  }
+  if (wallMeshes.spotLight) {
+    wallMeshes.spotLight.intensity = intensity * 0.8;
+    wallMeshes.spotLight.color.copy(color);
+  }
+}
+
+function toggleFurniture() {
+  const items = [
+    { id: 'furn-bath', key: 'bath' },
+    { id: 'furn-toilet', key: 'toilet' },
+    { id: 'furn-sink', key: 'sink' },
+    { id: 'furn-cabinet', key: 'cabinet' },
+  ];
+  items.forEach(({ id, key }) => {
+    const visible = document.getElementById(id).checked;
+    if (furniture[key]) furniture[key].visible = visible;
+  });
+}
+
+const presets = {
+  light: {
+    wall: '#d4e4f7', tileSize: 0.6, floor: '#c4b89a', floorMat: 'tile', ceiling: '#f0f0f0',
+    bath: true, toilet: true, sink: true, cabinet: true, light: 1.0, warmth: 0.2
+  },
+  dark: {
+    wall: '#2a2a3e', tileSize: 0.5, floor: '#3a3a4e', floorMat: 'stone', ceiling: '#1a1a2e',
+    bath: true, toilet: true, sink: true, cabinet: true, light: 0.7, warmth: 0.5
+  },
+  warm: {
+    wall: '#f5e6c8', tileSize: 0.5, floor: '#a0845c', floorMat: 'wood', ceiling: '#faf0e6',
+    bath: true, toilet: true, sink: true, cabinet: true, light: 0.9, warmth: 0.8
+  },
+  luxury: {
+    wall: '#d4c4a8', tileSize: 0.7, floor: '#4a4a4a', floorMat: 'stone', ceiling: '#f5f0e8',
+    bath: true, toilet: true, sink: true, cabinet: true, light: 1.3, warmth: 0.4
+  }
+};
+
+function applyPreset(name) {
+  const p = presets[name];
+  if (!p) return;
+
+  document.getElementById('wall-color').value = p.wall;
+  document.getElementById('tile-size').value = p.tileSize;
+  document.getElementById('tile-size-val').textContent = Math.round(p.tileSize * 100);
+  document.getElementById('floor-color').value = p.floor;
+  document.getElementById('floor-material').value = p.floorMat;
+  document.getElementById('ceiling-color').value = p.ceiling;
+  document.getElementById('light-intensity').value = p.light;
+  document.getElementById('light-intensity-val').textContent = p.light.toFixed(1);
+  document.getElementById('light-warmth').value = p.warmth;
+  document.getElementById('light-warmth-val').textContent = p.warmth.toFixed(1);
+
+  document.getElementById('furn-bath').checked = p.bath;
+  document.getElementById('furn-toilet').checked = p.toilet;
+  document.getElementById('furn-sink').checked = p.sink;
+  document.getElementById('furn-cabinet').checked = p.cabinet;
+
+  applyWallTile();
+  applyFloor();
+  applyCeiling();
+  updateLighting();
+  toggleFurniture();
+}
+
+buildRoom();
+buildFurniture();
+buildLights();
+
+document.getElementById('wall-color').addEventListener('input', applyWallTile);
+document.getElementById('tile-size').addEventListener('input', () => {
+  document.getElementById('tile-size-val').textContent = Math.round(parseFloat(document.getElementById('tile-size').value) * 100);
+  applyWallTile();
+});
+document.querySelectorAll('.tile-pattern').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.tile-pattern').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    applyWallTile();
+  });
+});
+document.getElementById('floor-color').addEventListener('input', applyFloor);
+document.getElementById('floor-material').addEventListener('change', applyFloor);
+document.getElementById('ceiling-color').addEventListener('input', applyCeiling);
+
+document.getElementById('light-intensity').addEventListener('input', () => {
+  document.getElementById('light-intensity-val').textContent = parseFloat(document.getElementById('light-intensity').value).toFixed(1);
+  updateLighting();
+});
+document.getElementById('light-warmth').addEventListener('input', () => {
+  document.getElementById('light-warmth-val').textContent = parseFloat(document.getElementById('light-warmth').value).toFixed(1);
+  updateLighting();
+});
+
+document.querySelectorAll('.toggle-item input[type="checkbox"]').forEach(el => {
+  el.addEventListener('change', toggleFurniture);
+});
+
+document.querySelectorAll('.preset-btn').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.preset-btn').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    applyPreset(el.dataset.preset);
+  });
+});
+
+document.getElementById('save-btn').addEventListener('click', () => {
+  renderer.render(scene, camera);
+  const link = document.createElement('a');
+  link.download = 'bathroom.png';
+  link.href = renderer.domElement.toDataURL('image/png');
+  link.click();
+});
+
+document.getElementById('toggle-panel').addEventListener('click', () => {
+  document.getElementById('ui-panel').classList.toggle('collapsed');
+});
+
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }, 100);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
