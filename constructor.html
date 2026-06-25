@@ -56,47 +56,51 @@ body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #fff; overf
   right: 0;
 }
 
-#toggle-panel:hover {
-  color: #4facfe;
-}
+#toggle-panel:hover { color: #4facfe; }
 
 #ui-panel::-webkit-scrollbar { width: 4px; }
 #ui-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 2px; }
 
-.section { margin-bottom: 1.5rem; }
+.section { margin-bottom: 1.3rem; }
 .section-title {
-  font-size: .75rem;
+  font-size: .7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .12em;
   color: rgba(255,255,255,.3);
-  margin-bottom: .75rem;
+  margin-bottom: .6rem;
 }
 
 .control-row {
   display: flex;
   align-items: center;
-  gap: .75rem;
-  margin-bottom: .6rem;
+  gap: .6rem;
+  margin-bottom: .5rem;
 }
 
 .control-row label {
-  font-size: .85rem;
+  font-size: .82rem;
   color: rgba(255,255,255,.7);
-  min-width: 70px;
+  min-width: 60px;
   flex-shrink: 0;
 }
 
 .control-row .value {
-  font-size: .8rem;
+  font-size: .78rem;
   color: rgba(255,255,255,.4);
   min-width: 32px;
   text-align: right;
 }
 
+.control-row .unit {
+  font-size: .75rem;
+  color: rgba(255,255,255,.25);
+  min-width: 20px;
+}
+
 input[type="color"] {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border: 2px solid rgba(255,255,255,.1);
   border-radius: 8px;
   cursor: pointer;
@@ -118,8 +122,8 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #4facfe;
   cursor: pointer;
@@ -129,14 +133,14 @@ input[type="range"]::-webkit-slider-thumb {
 .toggle-group {
   display: flex;
   flex-direction: column;
-  gap: .4rem;
+  gap: .3rem;
 }
 
 .toggle-item {
   display: flex;
   align-items: center;
   gap: .6rem;
-  padding: .4rem .6rem;
+  padding: .35rem .6rem;
   border-radius: 8px;
   cursor: pointer;
   transition: background .3s;
@@ -145,15 +149,15 @@ input[type="range"]::-webkit-slider-thumb {
 .toggle-item:hover { background: rgba(255,255,255,.04); }
 
 .toggle-item label {
-  font-size: .85rem;
+  font-size: .82rem;
   color: rgba(255,255,255,.7);
   cursor: pointer;
   flex: 1;
 }
 
 .toggle-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   accent-color: #4facfe;
   cursor: pointer;
 }
@@ -161,8 +165,8 @@ input[type="range"]::-webkit-slider-thumb {
 .tile-patterns {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: .4rem;
-  margin-top: .4rem;
+  gap: .35rem;
+  margin-top: .35rem;
 }
 
 .tile-pattern {
@@ -173,7 +177,7 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   transition: border-color .3s, transform .3s;
 }
 
@@ -182,22 +186,20 @@ input[type="range"]::-webkit-slider-thumb {
   transform: scale(1.05);
 }
 
-.tile-pattern.active {
-  border-color: #4facfe;
-}
+.tile-pattern.active { border-color: #4facfe; }
 
 .preset-btn {
-  padding: .5rem 1rem;
+  padding: .4rem .8rem;
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,.1);
   background: rgba(255,255,255,.04);
   color: rgba(255,255,255,.7);
   cursor: pointer;
-  font-size: .8rem;
+  font-size: .78rem;
   font-family: 'Inter', sans-serif;
   transition: border-color .3s, background .3s;
-  margin-right: .4rem;
-  margin-bottom: .4rem;
+  margin-right: .35rem;
+  margin-bottom: .35rem;
 }
 
 .preset-btn:hover {
@@ -216,30 +218,24 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex;
   align-items: center;
   gap: .6rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: .8rem;
   border-bottom: 1px solid rgba(255,255,255,.06);
 }
 
-.header h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.header .logo {
-  font-size: 1.4rem;
-}
+.header h2 { font-size: 1.05rem; font-weight: 600; }
+.header .logo { font-size: 1.2rem; }
 
 #save-btn {
-  margin-top: 1rem;
+  margin-top: .8rem;
   width: 100%;
-  padding: .8rem;
+  padding: .7rem;
   border-radius: 10px;
   border: none;
   background: linear-gradient(135deg, #4facfe, #00f2fe);
   color: #fff;
   font-weight: 600;
-  font-size: .9rem;
+  font-size: .85rem;
   cursor: pointer;
   font-family: 'Inter', sans-serif;
   transition: transform .3s, box-shadow .3s;
@@ -251,11 +247,79 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .hint {
-  font-size: .75rem;
-  color: rgba(255,255,255,.25);
+  font-size: .72rem;
+  color: rgba(255,255,255,.2);
   text-align: center;
-  margin-top: 1rem;
+  margin-top: .8rem;
 }
+
+.floorplan-area {
+  margin-top: .35rem;
+  padding: .6rem;
+  border-radius: 8px;
+  border: 1px dashed rgba(255,255,255,.1);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .3s, background .3s;
+}
+
+.floorplan-area:hover {
+  border-color: rgba(79,172,254,.3);
+  background: rgba(79,172,254,.03);
+}
+
+.floorplan-area label {
+  font-size: .8rem;
+  color: rgba(255,255,255,.4);
+  cursor: pointer;
+  display: block;
+}
+
+.floorplan-area .icon {
+  font-size: 1.4rem;
+  margin-bottom: .2rem;
+}
+
+.floorplan-area.has-image {
+  border-color: rgba(79,172,254,.3);
+  background: rgba(79,172,254,.05);
+}
+
+.floorplan-area.has-image label {
+  color: rgba(79,172,254,.7);
+}
+
+#floorplan-input { display: none; }
+
+#clear-floorplan {
+  display: none;
+  margin-top: .35rem;
+  padding: .25rem .6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.5);
+  cursor: pointer;
+  font-size: .72rem;
+  font-family: 'Inter', sans-serif;
+  transition: border-color .3s;
+}
+
+#clear-floorplan:hover {
+  border-color: #f5576c;
+  color: #f5576c;
+}
+
+.size-info {
+  display: flex;
+  gap: .35rem;
+  font-size: .72rem;
+  color: rgba(255,255,255,.3);
+  margin-top: .25rem;
+  justify-content: center;
+}
+
+.size-info span { padding: .15rem .4rem; background: rgba(255,255,255,.04); border-radius: 4px; }
 </style>
 </head>
 <body>
@@ -274,6 +338,39 @@ input[type="range"]::-webkit-slider-thumb {
     <button class="preset-btn" data-preset="dark">Тёмный</button>
     <button class="preset-btn" data-preset="warm">Тёплый</button>
     <button class="preset-btn" data-preset="luxury">Люкс</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Размеры помещения</div>
+    <div class="control-row">
+      <label>Ширина</label>
+      <input type="range" id="room-width" min="2" max="8" step="0.1" value="4">
+      <span class="value" id="room-width-val">4.0</span>
+      <span class="unit">м</span>
+    </div>
+    <div class="control-row">
+      <label>Глубина</label>
+      <input type="range" id="room-depth" min="1.5" max="6" step="0.1" value="3">
+      <span class="value" id="room-depth-val">3.0</span>
+      <span class="unit">м</span>
+    </div>
+    <div class="control-row">
+      <label>Высота</label>
+      <input type="range" id="room-height" min="2.2" max="4" step="0.1" value="2.7">
+      <span class="value" id="room-height-val">2.7</span>
+      <span class="unit">м</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Планировка</div>
+    <div class="floorplan-area" id="floorplan-area">
+      <div class="icon">📐</div>
+      <label>Загрузить планировку</label>
+    </div>
+    <input type="file" id="floorplan-input" accept="image/*">
+    <div class="size-info" id="size-info"></div>
+    <button id="clear-floorplan">✕ Убрать планировку</button>
   </div>
 
   <div class="section">
@@ -303,7 +400,7 @@ input[type="range"]::-webkit-slider-thumb {
     </div>
     <div class="control-row">
       <label>Материал</label>
-      <select id="floor-material" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:.4rem .6rem;color:#fff;font-family:'Inter',sans-serif;font-size:.85rem;outline:none">
+      <select id="floor-material" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:.35rem .5rem;color:#fff;font-family:'Inter',sans-serif;font-size:.82rem;outline:none">
         <option value="tile">Плитка</option>
         <option value="wood">Дерево</option>
         <option value="stone">Камень</option>
@@ -356,7 +453,7 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
 
   <button id="save-btn">💾 Сохранить скриншот</button>
-  <div class="hint">🖱 Вращайте сцену — зажмите левую кнопку мыши</div>
+  <div class="hint">🖱 Вращайте — зажмите левую кнопку мыши</div>
 </div>
 
 <div id="toggle-panel">⚙</div>
@@ -379,9 +476,6 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1a1a2e);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 50);
-camera.position.set(6, 5, 8);
-camera.lookAt(0, 1.2, 0);
-
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -400,13 +494,22 @@ controls.minDistance = 2;
 controls.maxDistance = 15;
 controls.update();
 
-const roomWidth = 4;
-const roomDepth = 3;
-const roomHeight = 2.7;
+let roomWidth = 4;
+let roomDepth = 3;
+let roomHeight = 2.7;
 
-const furniture = {};
-const wallMeshes = {};
-let tileTexture = null;
+const roomGroup = new THREE.Group();
+scene.add(roomGroup);
+
+const furnitureGroup = new THREE.Group();
+scene.add(furnitureGroup);
+
+const wallMats = [];
+let floorMat = null;
+let ceilMat = null;
+let floorMesh = null;
+let floorPlanTexture = null;
+let useFloorPlan = false;
 
 function createTileTexture(pattern, color, tileSize) {
   const canvas = document.createElement('canvas');
@@ -463,6 +566,7 @@ function createTileTexture(pattern, color, tileSize) {
     const ds = tilePx * 0.7;
     const cols = Math.floor(size * 1.5 / (ds + gap)) + 2;
     const rows = Math.floor(size * 1.5 / (ds + gap)) + 2;
+    ctx.save();
     ctx.translate(size / 2, 0);
     ctx.rotate(Math.PI / 4);
     ctx.translate(-size / 2, -size / 2);
@@ -477,6 +581,7 @@ function createTileTexture(pattern, color, tileSize) {
         ctx.strokeRect(x, y, ds, ds);
       }
     }
+    ctx.restore();
   } else {
     const gap = 1;
     const hexR = tilePx * 0.35;
@@ -571,7 +676,22 @@ function createFloorTexture(material, color) {
   return new THREE.CanvasTexture(canvas);
 }
 
+function clearRoom() {
+  while (roomGroup.children.length > 0) {
+    const child = roomGroup.children[0];
+    if (child.geometry) child.geometry.dispose();
+    if (child.material) child.material.dispose();
+    roomGroup.remove(child);
+  }
+  wallMats.length = 0;
+  floorMat = null;
+  ceilMat = null;
+  floorMesh = null;
+}
+
 function buildRoom() {
+  clearRoom();
+
   const w = roomWidth / 2;
   const d = roomDepth / 2;
   const h = roomHeight;
@@ -579,55 +699,63 @@ function buildRoom() {
   const wallGeo = new THREE.PlaneGeometry(roomWidth, roomHeight);
   const wallGeoW = new THREE.PlaneGeometry(roomDepth, roomHeight);
 
-  const matConfig = {
-    side: THREE.DoubleSide,
-    roughness: 0.6,
-    metalness: 0.1,
-  };
-
+  const matConfig = { side: THREE.DoubleSide, roughness: 0.6, metalness: 0.1 };
   const wallMat = new THREE.MeshStandardMaterial({ ...matConfig, roughness: 0.4 });
 
-  wallMeshes.back = new THREE.Mesh(wallGeo, wallMat);
-  wallMeshes.back.position.set(0, h / 2, -d);
-  scene.add(wallMeshes.back);
+  const back = new THREE.Mesh(wallGeo, wallMat);
+  back.position.set(0, h / 2, -d);
+  roomGroup.add(back);
 
-  wallMeshes.front = new THREE.Mesh(wallGeo.clone(), wallMat.clone());
-  wallMeshes.front.position.set(0, h / 2, d);
-  wallMeshes.front.rotation.y = Math.PI;
-  scene.add(wallMeshes.front);
+  const front = new THREE.Mesh(wallGeo.clone(), wallMat.clone());
+  front.position.set(0, h / 2, d);
+  front.rotation.y = Math.PI;
+  roomGroup.add(front);
 
-  wallMeshes.left = new THREE.Mesh(wallGeoW, wallMat.clone());
-  wallMeshes.left.position.set(-w, h / 2, 0);
-  wallMeshes.left.rotation.y = Math.PI / 2;
-  scene.add(wallMeshes.left);
+  const left = new THREE.Mesh(wallGeoW, wallMat.clone());
+  left.position.set(-w, h / 2, 0);
+  left.rotation.y = Math.PI / 2;
+  roomGroup.add(left);
 
-  wallMeshes.right = new THREE.Mesh(wallGeoW.clone(), wallMat.clone());
-  wallMeshes.right.position.set(w, h / 2, 0);
-  wallMeshes.right.rotation.y = -Math.PI / 2;
-  scene.add(wallMeshes.right);
+  const right = new THREE.Mesh(wallGeoW.clone(), wallMat.clone());
+  right.position.set(w, h / 2, 0);
+  right.rotation.y = -Math.PI / 2;
+  roomGroup.add(right);
 
-  const floorMat = new THREE.MeshStandardMaterial({ roughness: 0.5, metalness: 0.05 });
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(roomWidth, roomDepth), floorMat);
+  const fm = new THREE.MeshStandardMaterial({ roughness: 0.5, metalness: 0.05 });
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(roomWidth, roomDepth), fm);
   floor.rotation.x = -Math.PI / 2;
   floor.position.set(0, 0.01, 0);
   floor.receiveShadow = true;
-  scene.add(floor);
-  wallMeshes.floor = floor;
-  wallMeshes.floorMat = floorMat;
+  roomGroup.add(floor);
+  floorMat = fm;
+  floorMesh = floor;
 
-  const ceilMat = new THREE.MeshStandardMaterial({ roughness: 0.8, metalness: 0, side: THREE.DoubleSide });
-  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(roomWidth, roomDepth), ceilMat);
+  const cm = new THREE.MeshStandardMaterial({ roughness: 0.8, metalness: 0, side: THREE.DoubleSide });
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(roomWidth, roomDepth), cm);
   ceiling.rotation.x = Math.PI / 2;
   ceiling.position.set(0, h, 0);
-  scene.add(ceiling);
-  wallMeshes.ceiling = ceiling;
-  wallMeshes.ceilMat = ceilMat;
+  roomGroup.add(ceiling);
+  ceilMat = cm;
 
-  wallMeshes.wallMats = [wallMat, wallMeshes.front.material, wallMeshes.left.material, wallMeshes.right.material];
+  wallMats.length = 0;
+  wallMats.push(wallMat, front.material, left.material, right.material);
 
+  applyFloorPlanTexture();
   applyWallTile();
   applyFloor();
   applyCeiling();
+  updateSpotLight();
+  updateCamera();
+}
+
+function applyFloorPlanTexture() {
+  if (useFloorPlan && floorPlanTexture && floorMesh && floorMat) {
+    floorMat.map = floorPlanTexture;
+    floorMat.color.set(0xffffff);
+    floorMat.needsUpdate = true;
+  } else if (floorMat) {
+    applyFloor();
+  }
 }
 
 function applyWallTile() {
@@ -635,30 +763,71 @@ function applyWallTile() {
   const size = parseFloat(document.getElementById('tile-size').value);
   const pattern = document.querySelector('.tile-pattern.active')?.dataset.pattern || 'grid';
 
-  tileTexture = createTileTexture(pattern, color, size);
-  tileTexture.wrapS = tileTexture.wrapT = THREE.RepeatWrapping;
-  tileTexture.repeat.set(2, 2);
+  const tex = createTileTexture(pattern, color, size);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(2, 2);
 
-  wallMeshes.wallMats.forEach(mat => {
-    mat.map = tileTexture;
+  wallMats.forEach(mat => {
+    mat.map = tex;
     mat.color.set(0xffffff);
     mat.needsUpdate = true;
   });
 }
 
 function applyFloor() {
+  if (useFloorPlan && floorPlanTexture) return;
   const color = document.getElementById('floor-color').value;
   const material = document.getElementById('floor-material').value;
-  wallMeshes.floorMat.map = createFloorTexture(material, color);
-  wallMeshes.floorMat.color.set(0xffffff);
-  wallMeshes.floorMat.needsUpdate = true;
+  floorMat.map = createFloorTexture(material, color);
+  floorMat.color.set(0xffffff);
+  floorMat.needsUpdate = true;
 }
 
 function applyCeiling() {
   const color = document.getElementById('ceiling-color').value;
-  wallMeshes.ceilMat.color.set(color);
-  wallMeshes.ceilMat.needsUpdate = true;
+  ceilMat.color.set(color);
+  ceilMat.needsUpdate = true;
 }
+
+function rebuildScene() {
+  const oldFurnItems = [];
+  furnitureGroup.children.forEach(child => {
+    oldFurnItems.push({ ref: child, visible: child.visible, pos: child.position.clone() });
+  });
+  while (furnitureGroup.children.length > 0) {
+    furnitureGroup.remove(furnitureGroup.children[0]);
+  }
+
+  buildRoom();
+
+  furnitureGroup.remove(furniture.bath);
+  furnitureGroup.remove(furniture.toilet);
+  furnitureGroup.remove(furniture.sink);
+  furnitureGroup.remove(furniture.cabinet);
+
+  const hw = roomWidth / 2 - 0.3;
+  const hd = roomDepth / 2 - 0.3;
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+  furniture.bath.position.set(clamp(-0.8, -hw, hw), 0, clamp(0.5, -hd, hd));
+  furnitureGroup.add(furniture.bath);
+  furniture.bath.visible = document.getElementById('furn-bath').checked;
+
+  furniture.toilet.position.set(clamp(1.2, -hw, hw), 0, clamp(-0.7, -hd, hd));
+  furnitureGroup.add(furniture.toilet);
+  furniture.toilet.visible = document.getElementById('furn-toilet').checked;
+
+  furniture.sink.position.set(clamp(1.3, -hw, hw), 0, clamp(0.7, -hd, hd));
+  furnitureGroup.add(furniture.sink);
+  furniture.sink.visible = document.getElementById('furn-sink').checked;
+
+  furniture.cabinet.position.set(clamp(-1.5, -hw, hw), 0, clamp(0.8, -hd, hd));
+  furnitureGroup.add(furniture.cabinet);
+  furniture.cabinet.visible = document.getElementById('furn-cabinet').checked;
+}
+
+const furniture = {};
 
 function buildFurniture() {
   const bathMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.3, metalness: 0.1 });
@@ -690,7 +859,6 @@ function buildFurniture() {
 
   bath.position.set(-0.8, 0, 0.5);
   bath.rotation.y = 0.2;
-  scene.add(bath);
   furniture.bath = bath;
 
   const toiletMat = new THREE.MeshStandardMaterial({ color: 0xfafafa, roughness: 0.2, metalness: 0.05 });
@@ -716,7 +884,6 @@ function buildFurniture() {
   toilet.add(lid);
 
   toilet.position.set(1.2, 0, -0.7);
-  scene.add(toilet);
   furniture.toilet = toilet;
 
   const sinkMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.15, metalness: 0.1 });
@@ -752,7 +919,6 @@ function buildFurniture() {
   }
 
   sink.position.set(1.3, 0, 0.7);
-  scene.add(sink);
   furniture.sink = sink;
 
   const cabinetMat = new THREE.MeshStandardMaterial({ color: 0x8B7355, roughness: 0.5 });
@@ -774,49 +940,75 @@ function buildFurniture() {
   cabinet.add(handle);
 
   cabinet.position.set(-1.5, 0, 0.8);
-  scene.add(cabinet);
   furniture.cabinet = cabinet;
+
+  for (const key of ['bath', 'toilet', 'sink', 'cabinet']) {
+    furnitureGroup.add(furniture[key]);
+  }
 }
 
+const lightsGroup = new THREE.Group();
+scene.add(lightsGroup);
+
 function buildLights() {
+  while (lightsGroup.children.length > 0) lightsGroup.remove(lightsGroup.children[0]);
+
   const ambient = new THREE.AmbientLight(0x404060, 0.4);
-  scene.add(ambient);
-  wallMeshes.ambient = ambient;
+  lightsGroup.add(ambient);
 
   const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
   mainLight.position.set(0, 5, 2);
   mainLight.castShadow = true;
   mainLight.shadow.mapSize.width = 1024;
   mainLight.shadow.mapSize.height = 1024;
-  const d = 6;
+  const d = 8;
   mainLight.shadow.camera.left = -d;
   mainLight.shadow.camera.right = d;
   mainLight.shadow.camera.top = d;
   mainLight.shadow.camera.bottom = -d;
   mainLight.shadow.camera.near = 1;
-  mainLight.shadow.camera.far = 10;
-  scene.add(mainLight);
-  wallMeshes.mainLight = mainLight;
+  mainLight.shadow.camera.far = 15;
+  lightsGroup.add(mainLight);
+  lightsGroup.userData.mainLight = mainLight;
 
   const fillLight = new THREE.DirectionalLight(0x8888ff, 0.5);
   fillLight.position.set(-3, 2, -3);
-  scene.add(fillLight);
+  lightsGroup.add(fillLight);
 
   const spotLight = new THREE.SpotLight(0xffeedd, 0.8, 8, Math.PI / 6, 0.3, 1);
   spotLight.position.set(0, roomHeight - 0.1, 0);
   spotLight.target.position.set(0, 0, 0);
   spotLight.castShadow = true;
-  scene.add(spotLight);
-  scene.add(spotLight.target);
-  wallMeshes.spotLight = spotLight;
+  lightsGroup.add(spotLight);
+  lightsGroup.add(spotLight.target);
+  lightsGroup.userData.spotLight = spotLight;
 
   for (let i = 0; i < 4; i++) {
     const angle = (i / 4) * Math.PI * 2;
-    const r = 1.2;
+    const r = Math.min(roomWidth, roomDepth) * 0.3;
     const pl = new THREE.PointLight(0xffeedd, 0.3, 4);
     pl.position.set(Math.cos(angle) * r, roomHeight - 0.15, Math.sin(angle) * r);
-    scene.add(pl);
+    lightsGroup.add(pl);
   }
+}
+
+function updateSpotLight() {
+  const spot = lightsGroup.userData.spotLight;
+  if (spot) {
+    spot.position.set(0, roomHeight - 0.1, 0);
+    spot.target.position.set(0, 0, 0);
+  }
+}
+
+function updateCamera() {
+  const maxDim = Math.max(roomWidth, roomDepth, roomHeight);
+  const dist = maxDim * 1.8 + 2;
+  controls.maxDistance = dist + 5;
+  controls.minDistance = Math.min(2, maxDim * 0.5);
+  const cx = 0, cy = roomHeight * 0.45, cz = roomDepth * 0.5 + dist * 0.35;
+  camera.position.set(cx + dist * 0.55, cy + dist * 0.4, cz);
+  controls.target.set(0, roomHeight * 0.4, 0);
+  controls.update();
 }
 
 function updateLighting() {
@@ -828,14 +1020,10 @@ function updateLighting() {
   const b = 1 - warmth * 0.5;
   const color = new THREE.Color(r, g, b);
 
-  if (wallMeshes.mainLight) {
-    wallMeshes.mainLight.intensity = intensity * 1.5;
-    wallMeshes.mainLight.color.copy(color);
-  }
-  if (wallMeshes.spotLight) {
-    wallMeshes.spotLight.intensity = intensity * 0.8;
-    wallMeshes.spotLight.color.copy(color);
-  }
+  const mainLight = lightsGroup.userData.mainLight;
+  const spotLight = lightsGroup.userData.spotLight;
+  if (mainLight) { mainLight.intensity = intensity * 1.5; mainLight.color.copy(color); }
+  if (spotLight) { spotLight.intensity = intensity * 0.8; spotLight.color.copy(color); }
 }
 
 function toggleFurniture() {
@@ -846,8 +1034,7 @@ function toggleFurniture() {
     { id: 'furn-cabinet', key: 'cabinet' },
   ];
   items.forEach(({ id, key }) => {
-    const visible = document.getElementById(id).checked;
-    if (furniture[key]) furniture[key].visible = visible;
+    if (furniture[key]) furniture[key].visible = document.getElementById(id).checked;
   });
 }
 
@@ -897,9 +1084,9 @@ function applyPreset(name) {
   toggleFurniture();
 }
 
-buildRoom();
 buildFurniture();
 buildLights();
+buildRoom();
 
 document.getElementById('wall-color').addEventListener('input', applyWallTile);
 document.getElementById('tile-size').addEventListener('input', () => {
@@ -949,6 +1136,77 @@ document.getElementById('save-btn').addEventListener('click', () => {
 document.getElementById('toggle-panel').addEventListener('click', () => {
   document.getElementById('ui-panel').classList.toggle('collapsed');
 });
+
+['room-width', 'room-depth', 'room-height'].forEach(id => {
+  const el = document.getElementById(id);
+  const valId = id + '-val';
+  el.addEventListener('input', () => {
+    const val = parseFloat(el.value);
+    document.getElementById(valId).textContent = val.toFixed(1);
+    roomWidth = parseFloat(document.getElementById('room-width').value);
+    roomDepth = parseFloat(document.getElementById('room-depth').value);
+    roomHeight = parseFloat(document.getElementById('room-height').value);
+    rebuildScene();
+    updateLighting();
+    updateFloorPlanSizeInfo();
+  });
+});
+
+const floorplanArea = document.getElementById('floorplan-area');
+const floorplanInput = document.getElementById('floorplan-input');
+const clearFloorplanBtn = document.getElementById('clear-floorplan');
+const sizeInfo = document.getElementById('size-info');
+
+floorplanArea.addEventListener('click', () => floorplanInput.click());
+
+floorplanInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+
+      floorPlanTexture = new THREE.CanvasTexture(canvas);
+      useFloorPlan = true;
+      applyFloorPlanTexture();
+      updateFloorPlanSizeInfo();
+
+      floorplanArea.classList.add('has-image');
+      floorplanArea.querySelector('.icon').textContent = '✅';
+      floorplanArea.querySelector('label').textContent = file.name;
+      clearFloorplanBtn.style.display = 'inline';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+clearFloorplanBtn.addEventListener('click', () => {
+  useFloorPlan = false;
+  floorPlanTexture = null;
+  floorplanInput.value = '';
+  applyFloor();
+  floorplanArea.classList.remove('has-image');
+  floorplanArea.querySelector('.icon').textContent = '📐';
+  floorplanArea.querySelector('label').textContent = 'Загрузить планировку';
+  clearFloorplanBtn.style.display = 'none';
+  updateFloorPlanSizeInfo();
+});
+
+function updateFloorPlanSizeInfo() {
+  if (useFloorPlan && floorPlanTexture) {
+    sizeInfo.innerHTML = `<span>${roomWidth.toFixed(1)}×${roomDepth.toFixed(1)} м</span>`;
+  } else {
+    sizeInfo.innerHTML = '';
+  }
+}
 
 let resizeTimeout;
 window.addEventListener('resize', () => {
