@@ -293,6 +293,12 @@ input[type="range"]::-webkit-slider-thumb {
   display: block;
 }
 
+#move-mode-btn.move-active {
+  border-color: #4facfe;
+  background: rgba(79,172,254,.12);
+  color: #4facfe;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -519,6 +525,7 @@ input[type="range"]::-webkit-slider-thumb {
         <label for="furn-cabinet">Шкаф</label>
       </div>
     </div>
+    <button id="move-mode-btn" class="custom-toggle" style="margin-top:.5rem">✋ Режим перемещения</button>
   </div>
 
   <div class="section">
@@ -554,6 +561,7 @@ input[type="range"]::-webkit-slider-thumb {
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { DragControls } from 'three/addons/controls/DragControls.js';
 
 const container = document.getElementById('canvas-container');
 const scene = new THREE.Scene();
@@ -1259,6 +1267,58 @@ function toggleFurniture() {
   });
 }
 
+let moveMode = false;
+const dragItems = [];
+let dragControls = null;
+
+function initDragControls() {
+  for (const key of ['bath', 'toilet', 'sink', 'cabinet']) {
+    if (furniture[key]) dragItems.push(furniture[key]);
+  }
+
+  dragControls = new DragControls(dragItems, camera, renderer.domElement);
+  dragControls.enabled = false;
+
+  const origMaterials = new Map();
+
+  dragControls.addEventListener('dragstart', (e) => {
+    controls.enabled = false;
+    e.object.children.forEach(child => {
+      if (child.material) {
+        origMaterials.set(child.uuid, child.material.emissive.getHex());
+        child.material.emissive.setHex(0x4facfe);
+        child.material.emissiveIntensity = 0.15;
+      }
+    });
+  });
+
+  dragControls.addEventListener('drag', (e) => {
+    const hw = roomWidth / 2 - 0.2;
+    const hd = roomDepth / 2 - 0.2;
+    e.object.position.x = Math.max(-hw, Math.min(hw, e.object.position.x));
+    e.object.position.z = Math.max(-hd, Math.min(hd, e.object.position.z));
+    e.object.position.y = 0;
+  });
+
+  dragControls.addEventListener('dragend', (e) => {
+    controls.enabled = true;
+    e.object.children.forEach(child => {
+      if (child.material) {
+        child.material.emissive.setHex(origMaterials.get(child.uuid) || 0x000000);
+        child.material.emissiveIntensity = 0;
+      }
+    });
+    origMaterials.clear();
+  });
+}
+
+document.getElementById('move-mode-btn').addEventListener('click', () => {
+  moveMode = !moveMode;
+  dragControls.enabled = moveMode;
+  document.getElementById('move-mode-btn').classList.toggle('move-active');
+  document.getElementById('move-mode-btn').textContent = moveMode ? '✋ Завершить' : '✋ Режим перемещения';
+});
+
 const presets = {
   light: {
     wall: '#d4e4f7', tileSize: 0.6, floor: '#c4b89a', floorMat: 'tile', ceiling: '#f0f0f0',
@@ -1489,6 +1549,7 @@ function applyTileFromCatalog(idx) {
 }
 
 buildFurniture();
+initDragControls();
 buildLights();
 buildRoom();
 initTileCatalog();
