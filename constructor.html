@@ -553,6 +553,7 @@ input[type="range"]::-webkit-slider-thumb {
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('canvas-container');
 const scene = new THREE.Scene();
@@ -913,116 +914,253 @@ function rebuildScene() {
 const furniture = {};
 
 function buildFurniture() {
-  const bathMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.3, metalness: 0.1 });
+  const ceramicMat = (color = 0xf5f5f5, roughness = 0.15, metalness = 0.05) =>
+    new THREE.MeshStandardMaterial({ color, roughness, metalness });
+
+  const chromeMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.95, roughness: 0.05 });
+  const brushedMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8, roughness: 0.3 });
+
   const bath = new THREE.Group();
 
-  const tub = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.55, 0.8), bathMat);
-  tub.position.y = 0.275;
-  tub.castShadow = true;
-  bath.add(tub);
+  const bathOuterMat = ceramicMat(0xf0f0f0, 0.2);
+  const bathOuter = new THREE.Mesh(new RoundedBoxGeometry(1.7, 0.52, 0.85, 3, 0.06), bathOuterMat);
+  bathOuter.position.y = 0.26;
+  bathOuter.castShadow = true;
+  bathOuter.receiveShadow = true;
+  bath.add(bathOuter);
 
-  const inner = new THREE.Mesh(
-    new THREE.BoxGeometry(1.35, 0.4, 0.55),
-    new THREE.MeshStandardMaterial({ color: 0xe8e8e8, roughness: 0.2, metalness: 0.05 })
-  );
-  inner.position.set(0, 0.35, 0);
-  bath.add(inner);
+  const bathInnerMat = new THREE.MeshStandardMaterial({ color: 0xe0ddd8, roughness: 0.1, metalness: 0, side: THREE.DoubleSide });
+  const bathInner = new THREE.Mesh(new RoundedBoxGeometry(1.35, 0.35, 0.58, 3, 0.04), bathInnerMat);
+  bathInner.position.set(0, 0.34, 0.02);
+  bath.add(bathInner);
 
-  const rimMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
-  const rim = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.04, 0.85), rimMat);
-  rim.position.y = 0.55;
+  const rimMat = ceramicMat(0xffffff, 0.25);
+  const rimShape = new THREE.Shape();
+  const rw = 0.88, rd = 0.46;
+  rimShape.moveTo(-rw, -rd);
+  rimShape.quadraticCurveTo(-rw - 0.04, 0, -rw, rd);
+  rimShape.lineTo(rw, rd);
+  rimShape.quadraticCurveTo(rw + 0.04, 0, rw, -rd);
+  rimShape.closePath();
+  const rimGeom = new THREE.ShapeGeometry(rimShape);
+  const rim = new THREE.Mesh(rimGeom, rimMat);
+  rim.rotation.x = -Math.PI / 2;
+  rim.position.set(0, 0.535, 0);
   bath.add(rim);
 
-  const feetMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8, roughness: 0.2 });
-  for (const pos of [[-0.7, 0.04, -0.35], [0.7, 0.04, -0.35], [-0.7, 0.04, 0.35], [0.7, 0.04, 0.35]]) {
-    const foot = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), feetMat);
-    foot.position.set(pos[0], pos[1], pos[2]);
-    bath.add(foot);
+  const rimInner = new THREE.Mesh(rimGeom.clone(), new THREE.MeshStandardMaterial({ color: 0xe8e8e8, roughness: 0.3, side: THREE.DoubleSide }));
+  rimInner.rotation.x = -Math.PI / 2;
+  rimInner.position.set(0, 0.525, 0);
+  rimInner.scale.set(0.85, 0.85, 1);
+  bath.add(rimInner);
+
+  const clawMat = brushedMat;
+  for (const [dx, dz] of [[-0.72, -0.36], [0.72, -0.36], [-0.72, 0.36], [0.72, 0.36]]) {
+    const footG = new THREE.Group();
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), clawMat);
+    sphere.position.y = 0.03;
+    footG.add(sphere);
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.035, 0.12, 8), clawMat);
+    neck.position.y = 0.1;
+    footG.add(neck);
+    const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.02, 8), clawMat);
+    plate.position.y = 0.16;
+    footG.add(plate);
+    footG.position.set(dx, 0, dz);
+    bath.add(footG);
   }
 
-  bath.position.set(-0.8, 0, 0.5);
-  bath.rotation.y = 0.2;
+  const tapMat = chromeMat;
+  const tapBase = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 0.07, 12), tapMat);
+  tapBase.position.set(0.5, 0.56, 0.3);
+  bath.add(tapBase);
+
+  const tapNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.12, 12), tapMat);
+  tapNeck.position.set(0.5, 0.64, 0.38);
+  tapNeck.rotation.x = 0.4;
+  bath.add(tapNeck);
+
+  const tapHead = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), tapMat);
+  tapHead.position.set(0.5, 0.7, 0.44);
+  bath.add(tapHead);
+
+  bath.position.set(-0.85, 0, 0.55);
+  bath.rotation.y = 0.15;
   furniture.bath = bath;
 
-  const toiletMat = new THREE.MeshStandardMaterial({ color: 0xfafafa, roughness: 0.2, metalness: 0.05 });
   const toilet = new THREE.Group();
 
-  const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 0.35, 16), toiletMat);
-  bowl.position.set(0, 0.175, 0.15);
+  const toiletCeramic = ceramicMat(0xfafafa, 0.12);
+
+  const bowlPoints = [];
+  bowlPoints.push(new THREE.Vector2(0.25, 0));
+  bowlPoints.push(new THREE.Vector2(0.22, 0.02));
+  bowlPoints.push(new THREE.Vector2(0.18, 0.08));
+  bowlPoints.push(new THREE.Vector2(0.16, 0.14));
+  bowlPoints.push(new THREE.Vector2(0.17, 0.2));
+  bowlPoints.push(new THREE.Vector2(0.2, 0.25));
+  bowlPoints.push(new THREE.Vector2(0.22, 0.28));
+  bowlPoints.push(new THREE.Vector2(0.2, 0.3));
+  bowlPoints.push(new THREE.Vector2(0.16, 0.32));
+  bowlPoints.push(new THREE.Vector2(0.12, 0.33));
+  bowlPoints.push(new THREE.Vector2(0.08, 0.33));
+  bowlPoints.push(new THREE.Vector2(0, 0.33));
+  const bowlGeom = new THREE.LatheGeometry(bowlPoints, 20);
+  const bowl = new THREE.Mesh(bowlGeom, toiletCeramic);
+  bowl.position.set(0, 0, 0.12);
+  bowl.scale.set(0.9, 1, 0.8);
+  bowl.castShadow = true;
   toilet.add(bowl);
 
-  const seat = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.03, 8, 16), toiletMat);
-  seat.position.set(0, 0.35, 0.15);
-  seat.rotation.x = Math.PI / 2;
-  toilet.add(seat);
-
-  const tankMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.3 });
-  const tank = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.35, 0.2), tankMat);
-  tank.position.set(0, 0.375, -0.15);
+  const tankGeom = new RoundedBoxGeometry(0.4, 0.36, 0.2, 3, 0.03);
+  const tankMat = ceramicMat(0xf0f0f0, 0.2);
+  const tank = new THREE.Mesh(tankGeom, tankMat);
+  tank.position.set(0, 0.38, -0.14);
   tank.castShadow = true;
   toilet.add(tank);
 
-  const lid = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.03, 0.22), tankMat);
-  lid.position.set(0, 0.55, -0.15);
+  const lidGeom = new RoundedBoxGeometry(0.42, 0.025, 0.22, 3, 0.015);
+  const lidMat = ceramicMat(0xf5f5f5, 0.15);
+  const lid = new THREE.Mesh(lidGeom, lidMat);
+  lid.position.set(0, 0.56, -0.14);
   toilet.add(lid);
 
-  toilet.position.set(1.2, 0, -0.7);
+  const seatMat = new THREE.MeshStandardMaterial({ color: 0xe8e8e8, roughness: 0.4 });
+  const seatRing = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.025, 8, 20), seatMat);
+  seatRing.position.set(0, 0.33, 0.12);
+  seatRing.rotation.x = Math.PI / 2;
+  seatRing.scale.set(1, 1, 0.8);
+  toilet.add(seatRing);
+
+  const seatCover = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.008, 8, 20), ceramicMat(0xf0f0f0, 0.3));
+  seatCover.position.set(0, 0.335, 0.12);
+  seatCover.rotation.x = Math.PI / 2;
+  seatCover.scale.set(1, 1, 0.8);
+  toilet.add(seatCover);
+
+  const flushBtn = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 0.015, 12), chromeMat);
+  flushBtn.position.set(0, 0.57, -0.1);
+  toilet.add(flushBtn);
+
+  toilet.position.set(1.25, 0, -0.75);
   furniture.toilet = toilet;
 
-  const sinkMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.15, metalness: 0.1 });
   const sink = new THREE.Group();
 
-  const basin = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.1, 0.45), sinkMat);
-  basin.position.set(0, 0.75, 0);
-  basin.castShadow = true;
-  sink.add(basin);
+  const sinkCeramic = ceramicMat(0xf8f8f8, 0.1);
 
-  const bowl2 = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.2, 0.22, 0.08, 16),
-    new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.1 })
-  );
-  bowl2.position.set(0, 0.71, 0);
-  sink.add(bowl2);
+  const sinkBowlPoints = [];
+  sinkBowlPoints.push(new THREE.Vector2(0.35, 0));
+  sinkBowlPoints.push(new THREE.Vector2(0.33, 0.03));
+  sinkBowlPoints.push(new THREE.Vector2(0.28, 0.08));
+  sinkBowlPoints.push(new THREE.Vector2(0.24, 0.14));
+  sinkBowlPoints.push(new THREE.Vector2(0.22, 0.18));
+  sinkBowlPoints.push(new THREE.Vector2(0.23, 0.2));
+  sinkBowlPoints.push(new THREE.Vector2(0.26, 0.21));
+  sinkBowlPoints.push(new THREE.Vector2(0.3, 0.21));
+  sinkBowlPoints.push(new THREE.Vector2(0.32, 0.2));
+  sinkBowlPoints.push(new THREE.Vector2(0.35, 0.18));
+  const sinkBowlGeom = new THREE.LatheGeometry(sinkBowlPoints, 20);
+  const sinkBowl = new THREE.Mesh(sinkBowlGeom, sinkCeramic);
+  sinkBowl.position.set(0, 0.75, 0);
+  sinkBowl.scale.set(1, 1, 0.7);
+  sinkBowl.castShadow = true;
+  sink.add(sinkBowl);
 
-  const faucetMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.9, roughness: 0.1 });
-  const faucet = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.15, 8), faucetMat);
-  faucet.position.set(0, 0.85, 0.15);
-  sink.add(faucet);
+  const counterGeom = new RoundedBoxGeometry(0.65, 0.03, 0.5, 3, 0.015);
+  const counterMat = ceramicMat(0xf5f5f5, 0.15);
+  const counter = new THREE.Mesh(counterGeom, counterMat);
+  counter.position.set(0, 0.765, 0);
+  counter.castShadow = true;
+  sink.add(counter);
 
-  const spout = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.02, 8, 8), faucetMat);
-  spout.position.set(0, 0.8, 0.22);
-  spout.rotation.x = Math.PI / 2;
+  const faucetBase = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.05, 12), chromeMat);
+  faucetBase.position.set(0, 0.81, 0.18);
+  sink.add(faucetBase);
+
+  const curvePoints = [
+    new THREE.Vector3(0, 0.81, 0.18),
+    new THREE.Vector3(0, 0.87, 0.18),
+    new THREE.Vector3(0, 0.9, 0.08),
+    new THREE.Vector3(0, 0.88, -0.02),
+  ];
+  const faucetCurve = new THREE.CatmullRomCurve3(curvePoints);
+  const faucetTube = new THREE.Mesh(new THREE.TubeGeometry(faucetCurve, 12, 0.02, 8, false), chromeMat);
+  sink.add(faucetTube);
+
+  const spout = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8), chromeMat);
+  spout.position.set(0, 0.87, -0.02);
   sink.add(spout);
 
-  const legMat = new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.6, roughness: 0.3 });
-  for (const pos of [[-0.25, 0.35, -0.18], [0.25, 0.35, -0.18], [-0.25, 0.35, 0.18], [0.25, 0.35, 0.18]]) {
-    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.35, 6), legMat);
-    leg.position.set(pos[0], pos[1], pos[2]);
-    sink.add(leg);
-  }
+  const handleL = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.02, 0.04, 8), chromeMat);
+  handleL.position.set(-0.1, 0.82, 0.22);
+  handleL.rotation.z = 0.3;
+  sink.add(handleL);
 
-  sink.position.set(1.3, 0, 0.7);
+  const pedestalGeom = new RoundedBoxGeometry(0.25, 0.6, 0.25, 3, 0.02);
+  const pedestalMat = ceramicMat(0xf0f0f0, 0.25);
+  const pedestal = new THREE.Mesh(pedestalGeom, pedestalMat);
+  pedestal.position.set(0, 0.3, 0);
+  sink.add(pedestal);
+
+  const mirrorMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.05, metalness: 0.9 });
+  const mirror = new THREE.Mesh(new RoundedBoxGeometry(0.4, 0.35, 0.02, 3, 0.01), mirrorMat);
+  mirror.position.set(0, 1.0, -0.15);
+  sink.add(mirror);
+
+  sink.position.set(1.3, 0, 0.75);
   furniture.sink = sink;
 
-  const cabinetMat = new THREE.MeshStandardMaterial({ color: 0x8B7355, roughness: 0.5 });
   const cabinet = new THREE.Group();
 
-  const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.35), cabinetMat);
-  body.position.set(0, 0.4, 0);
-  body.castShadow = true;
-  cabinet.add(body);
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x8B7355, roughness: 0.5 });
+  const woodLightMat = new THREE.MeshStandardMaterial({ color: 0x9B8365, roughness: 0.4 });
+  const woodDarkMat = new THREE.MeshStandardMaterial({ color: 0x6B5335, roughness: 0.55 });
 
-  const doorMat = new THREE.MeshStandardMaterial({ color: 0x9B8365, roughness: 0.4 });
-  const door = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.68, 0.04), doorMat);
-  door.position.set(0, 0.4, 0.18);
-  cabinet.add(door);
+  const cabinetGeom = new RoundedBoxGeometry(0.5, 0.85, 0.35, 3, 0.02);
+  const cabinetBody = new THREE.Mesh(cabinetGeom, woodMat);
+  cabinetBody.position.set(0, 0.425, 0);
+  cabinetBody.castShadow = true;
+  cabinet.add(cabinetBody);
 
-  const handleMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.7, roughness: 0.2 });
-  const handle = new THREE.Mesh(new THREE.SphereGeometry(0.02, 6, 6), handleMat);
-  handle.position.set(0.15, 0.4, 0.2);
-  cabinet.add(handle);
+  const doorLG = new THREE.Group();
 
-  cabinet.position.set(-1.5, 0, 0.8);
+  const doorGeom = new RoundedBoxGeometry(0.18, 0.78, 0.025, 3, 0.01);
+  const doorMat = woodLightMat;
+  const doorL = new THREE.Mesh(doorGeom, doorMat);
+  doorL.position.set(-0.12, 0.425, 0.18);
+  cabinet.add(doorL);
+
+  const doorR = new THREE.Mesh(doorGeom.clone(), doorMat);
+  doorR.position.set(0.12, 0.425, 0.18);
+  cabinet.add(doorR);
+
+  const panelMat = new THREE.MeshStandardMaterial({ color: 0x7A6345, roughness: 0.45 });
+  for (const x of [-0.12, 0.12]) {
+    const panel = new THREE.Mesh(new RoundedBoxGeometry(0.13, 0.32, 0.015, 3, 0.005), panelMat);
+    panel.position.set(x, 0.45, 0.195);
+    cabinet.add(panel);
+  }
+
+  const handleMat = chromeMat;
+  for (const x of [-0.12, 0.12]) {
+    const handleBar = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.12, 8), handleMat);
+    handleBar.position.set(x, 0.425, 0.2);
+    handleBar.rotation.x = Math.PI / 2;
+    cabinet.add(handleBar);
+    const handleBase = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.014, 0.025, 8), handleMat);
+    handleBase.position.set(x, 0.425, 0.195);
+    cabinet.add(handleBase);
+  }
+
+  const legsMat = brushedMat;
+  for (const [dx, dz] of [[-0.2, -0.14], [0.2, -0.14], [-0.2, 0.14], [0.2, 0.14]]) {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.02, 0.06, 8), legsMat);
+    leg.position.set(dx, 0.03, dz);
+    cabinet.add(leg);
+  }
+
+  cabinet.position.set(-1.5, 0, 0.85);
   furniture.cabinet = cabinet;
 
   for (const key of ['bath', 'toilet', 'sink', 'cabinet']) {
