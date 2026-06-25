@@ -214,6 +214,85 @@ input[type="range"]::-webkit-slider-thumb {
   color: #fff;
 }
 
+.tile-catalog {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .4rem;
+  margin-bottom: .5rem;
+}
+
+.tile-option {
+  border-radius: 8px;
+  border: 2px solid rgba(255,255,255,.08);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color .3s, transform .3s;
+  position: relative;
+  aspect-ratio: 1;
+}
+
+.tile-option:hover {
+  border-color: rgba(79,172,254,.3);
+  transform: scale(1.04);
+}
+
+.tile-option.active {
+  border-color: #4facfe;
+  box-shadow: 0 0 12px rgba(79,172,254,.25);
+}
+
+.tile-option canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.tile-option .tile-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: .2rem;
+  font-size: .6rem;
+  text-align: center;
+  background: rgba(0,0,0,.55);
+  color: rgba(255,255,255,.8);
+  backdrop-filter: blur(4px);
+}
+
+.custom-toggle {
+  display: block;
+  width: 100%;
+  padding: .4rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.03);
+  color: rgba(255,255,255,.5);
+  cursor: pointer;
+  font-size: .75rem;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  transition: border-color .3s, color .3s;
+}
+
+.custom-toggle:hover {
+  border-color: rgba(79,172,254,.3);
+  color: rgba(79,172,254,.8);
+}
+
+.custom-tile-section {
+  display: none;
+  margin-top: .5rem;
+  padding: .5rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.04);
+}
+
+.custom-tile-section.open {
+  display: block;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -375,20 +454,24 @@ input[type="range"]::-webkit-slider-thumb {
 
   <div class="section">
     <div class="section-title">Стены (плитка)</div>
-    <div class="control-row">
-      <label>Цвет</label>
-      <input type="color" id="wall-color" value="#d4e4f7">
-    </div>
-    <div class="control-row">
-      <label>Размер</label>
-      <input type="range" id="tile-size" min="0.2" max="1" step="0.05" value="0.6">
-      <span class="value" id="tile-size-val">60</span>
-    </div>
-    <div class="tile-patterns">
-      <div class="tile-pattern active" data-pattern="grid" title="Сетка">⊞</div>
-      <div class="tile-pattern" data-pattern="brick" title="Кирпич">⊟</div>
-      <div class="tile-pattern" data-pattern="hex" title="Гексагон">⬡</div>
-      <div class="tile-pattern" data-pattern="diagonal" title="Диагональ">◇</div>
+    <div class="tile-catalog" id="tile-catalog"></div>
+    <button class="custom-toggle" id="custom-tile-btn">🎨 Свой вариант</button>
+    <div class="custom-tile-section" id="custom-tile-section">
+      <div class="control-row">
+        <label>Цвет</label>
+        <input type="color" id="wall-color" value="#d4e4f7">
+      </div>
+      <div class="control-row">
+        <label>Размер</label>
+        <input type="range" id="tile-size" min="0.2" max="1" step="0.05" value="0.6">
+        <span class="value" id="tile-size-val">60</span>
+      </div>
+      <div class="tile-patterns">
+        <div class="tile-pattern active" data-pattern="grid" title="Сетка">⊞</div>
+        <div class="tile-pattern" data-pattern="brick" title="Кирпич">⊟</div>
+        <div class="tile-pattern" data-pattern="hex" title="Гексагон">⬡</div>
+        <div class="tile-pattern" data-pattern="diagonal" title="Диагональ">◇</div>
+      </div>
     </div>
   </div>
 
@@ -1077,6 +1160,7 @@ function applyPreset(name) {
   document.getElementById('furn-sink').checked = p.sink;
   document.getElementById('furn-cabinet').checked = p.cabinet;
 
+  deselectCatalog();
   applyWallTile();
   applyFloor();
   applyCeiling();
@@ -1084,19 +1168,209 @@ function applyPreset(name) {
   toggleFurniture();
 }
 
+const tileCatalog = [
+  { name: 'Белый кабанчик', pattern: 'brick', color: '#f5f5f0', size: 0.55 },
+  { name: 'Голубая волна', pattern: 'grid', color: '#b8d4e8', size: 0.5 },
+  { name: 'Мрамор белый', pattern: 'grid', color: '#e8e4dc', size: 0.7 },
+  { name: 'Серая гекса', pattern: 'hex', color: '#8a8a9a', size: 0.5 },
+  { name: 'Чёрный бриллиант', pattern: 'diagonal', color: '#2a2a32', size: 0.5 },
+  { name: 'Зелёный изумруд', pattern: 'grid', color: '#2d5a4a', size: 0.5 },
+  { name: 'Бежевый камень', pattern: 'brick', color: '#c8b89a', size: 0.5 },
+  { name: 'Терраццо', pattern: 'grid', color: '#d4c8b0', size: 0.4 },
+  { name: 'Мятный', pattern: 'hex', color: '#8fc4b8', size: 0.45 },
+  { name: 'Индиго', pattern: 'diagonal', color: '#3a4a7a', size: 0.55 },
+  { name: 'Розовый закат', pattern: 'grid', color: '#e8b4c4', size: 0.5 },
+  { name: 'Золотой', pattern: 'brick', color: '#d4b87a', size: 0.5 },
+  { name: 'Тёмная гекса', pattern: 'hex', color: '#3a3a4a', size: 0.5 },
+  { name: 'Шахматка', pattern: 'grid', color: '#e8e4dc', size: 0.5 },
+  { name: 'Лазурит', pattern: 'diagonal', color: '#4a6a9a', size: 0.45 },
+  { name: 'Доска', pattern: 'brick', color: '#7a6a5a', size: 0.6 },
+  { name: 'Снежная', pattern: 'hex', color: '#f0ece8', size: 0.5 },
+  { name: 'Графит', pattern: 'grid', color: '#4a4a52', size: 0.6 },
+];
+
+let selectedTile = null;
+
+function createTilePreview(tile, w = 120) {
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = w;
+  const ctx = canvas.getContext('2d');
+
+  const c = new THREE.Color(tile.color);
+  const r = Math.floor(c.r * 255);
+  const g = Math.floor(c.g * 255);
+  const b = Math.floor(c.b * 255);
+
+  const tilePx = w * tile.size * 0.35;
+
+  if (tile.pattern === 'grid' || tile.pattern === 'checker') {
+    const isChecker = tile.name === 'Шахматка';
+    const gap = 1;
+    const cols = Math.floor(w / (tilePx + gap));
+    const rows = Math.floor(w / (tilePx + gap));
+    const offset = (w - cols * tilePx - (cols - 1) * gap) / 2;
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        const x = offset + i * (tilePx + gap);
+        const y = offset + j * (tilePx + gap);
+        if (isChecker && (i + j) % 2 === 0) {
+          ctx.fillStyle = `rgb(${r-40},${g-40},${b-40})`;
+        } else {
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+        }
+        ctx.fillRect(x, y, tilePx, tilePx);
+        ctx.strokeStyle = `rgba(255,255,255,0.06)`;
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(x, y, tilePx, tilePx);
+      }
+    }
+  } else if (tile.pattern === 'brick') {
+    const gap = 1;
+    const bw = tilePx * 1.2;
+    const bh = tilePx * 0.6;
+    const cols = Math.floor(w / (bw + gap)) + 1;
+    const rows = Math.floor(w / (bh + gap)) + 1;
+    for (let j = 0; j < rows; j++) {
+      const offsetX = (j % 2 === 0) ? 0 : (bw + gap) / 2;
+      for (let i = 0; i < cols; i++) {
+        const x = i * (bw + gap) + offsetX - bw / 3;
+        const y = j * (bh + gap);
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(x, y, bw, bh);
+        ctx.strokeStyle = `rgba(255,255,255,0.06)`;
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(x, y, bw, bh);
+      }
+    }
+  } else if (tile.pattern === 'diagonal') {
+    const gap = 1;
+    const ds = tilePx * 0.7;
+    const cols = Math.floor(w * 1.5 / (ds + gap)) + 2;
+    const rows = Math.floor(w * 1.5 / (ds + gap)) + 2;
+    ctx.save();
+    ctx.translate(w / 2, 0);
+    ctx.rotate(Math.PI / 4);
+    ctx.translate(-w / 2, 0);
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        const x = (i - j) * (ds + gap) / 2 + w / 2;
+        const y = (i + j) * (ds + gap) / 2;
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(x, y, ds, ds);
+        ctx.strokeStyle = `rgba(255,255,255,0.06)`;
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(x, y, ds, ds);
+      }
+    }
+    ctx.restore();
+  } else {
+    const gap = 0.5;
+    const hexR = tilePx * 0.35;
+    const h = hexR * Math.sqrt(3);
+    const cols = Math.floor(w / (hexR * 1.5 + gap)) + 1;
+    const rows = Math.floor(w / (h + gap)) + 1;
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        const cx = i * hexR * 1.5 + (j % 2) * hexR * 0.75 + hexR;
+        const cy = j * (h + gap) * 0.5 + hexR;
+        ctx.beginPath();
+        for (let k = 0; k < 6; k++) {
+          const angle = Math.PI / 3 * k - Math.PI / 6;
+          const px = cx + hexR * Math.cos(angle);
+          const py = cy + hexR * Math.sin(angle);
+          k === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(255,255,255,0.04)`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+
+  const grad = ctx.createLinearGradient(0, 0, 0, w);
+  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(0.6, 'rgba(0,0,0,0)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.25)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, w);
+
+  return canvas;
+}
+
+function initTileCatalog() {
+  const container = document.getElementById('tile-catalog');
+  container.innerHTML = '';
+
+  tileCatalog.forEach((tile, idx) => {
+    const div = document.createElement('div');
+    div.className = 'tile-option' + (idx === 0 ? ' active' : '');
+    div.dataset.index = idx;
+
+    const preview = createTilePreview(tile);
+    div.appendChild(preview);
+
+    const label = document.createElement('div');
+    label.className = 'tile-label';
+    label.textContent = tile.name;
+    div.appendChild(label);
+
+    div.addEventListener('click', () => {
+      document.querySelectorAll('.tile-option').forEach(el => el.classList.remove('active'));
+      div.classList.add('active');
+      selectedTile = idx;
+      applyTileFromCatalog(idx);
+    });
+
+    container.appendChild(div);
+  });
+
+  selectedTile = 0;
+}
+
+function applyTileFromCatalog(idx) {
+  const tile = tileCatalog[idx];
+  if (!tile) return;
+
+  const color = tile.color;
+  const size = tile.size;
+  const pattern = tile.pattern;
+
+  const tex = createTileTexture(pattern, color, size);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(2, 2);
+
+  wallMats.forEach(mat => {
+    mat.map = tex;
+    mat.color.set(0xffffff);
+    mat.needsUpdate = true;
+  });
+}
+
 buildFurniture();
 buildLights();
 buildRoom();
+initTileCatalog();
 
-document.getElementById('wall-color').addEventListener('input', applyWallTile);
+function deselectCatalog() {
+  document.querySelectorAll('.tile-option').forEach(el => el.classList.remove('active'));
+  selectedTile = null;
+}
+
+document.getElementById('wall-color').addEventListener('input', () => { deselectCatalog(); applyWallTile(); });
 document.getElementById('tile-size').addEventListener('input', () => {
   document.getElementById('tile-size-val').textContent = Math.round(parseFloat(document.getElementById('tile-size').value) * 100);
+  deselectCatalog();
   applyWallTile();
 });
 document.querySelectorAll('.tile-pattern').forEach(el => {
   el.addEventListener('click', () => {
     document.querySelectorAll('.tile-pattern').forEach(e => e.classList.remove('active'));
     el.classList.add('active');
+    deselectCatalog();
     applyWallTile();
   });
 });
@@ -1135,6 +1409,12 @@ document.getElementById('save-btn').addEventListener('click', () => {
 
 document.getElementById('toggle-panel').addEventListener('click', () => {
   document.getElementById('ui-panel').classList.toggle('collapsed');
+});
+
+document.getElementById('custom-tile-btn').addEventListener('click', () => {
+  const section = document.getElementById('custom-tile-section');
+  const isOpen = section.classList.toggle('open');
+  document.getElementById('custom-tile-btn').textContent = isOpen ? '🎨 Закрыть' : '🎨 Свой вариант';
 });
 
 ['room-width', 'room-depth', 'room-height'].forEach(id => {
